@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="We propose Self-Grounded Verification to address agreement bias in MLLMs. SGV achieves gains across multiple domains, including a new SoTA on VisualWebArena.">
+  <meta property="og:title" content="Let's Think in Two Steps: Mitigating Agreement Bias in MLLMs with Self-Grounded Verification">
+  <meta property="og:description" content="We propose Self-Grounded Verification to address agreement bias in MLLMs. SGV achieves gains across multiple domains, including a new SoTA on VisualWebArena.">
+  <meta property="og:url" content="https://self-grounded-verification.github.io">
+  <!-- Optimal dimensions are 1200x630. -->
+  <meta property="og:image" content="https://self-grounded-verification.github.io/static/images/banner.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:title" content="Let's Think in Two Steps: Mitigating Agreement Bias in MLLMs with Self-Grounded Verification">
+  <meta name="twitter:description" content="We propose Self-Grounded Verification to address agreement bias in MLLMs. SGV achieves gains across multiple domains, including a new SoTA on VisualWebArena.">
+  <!-- Optimal dimensions are 1200x600. -->
+  <meta name="twitter:image" content="https://self-grounded-verification.github.io/static/images/banner-twitter.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Let's Think in Two Steps: Mitigating Agreement Bias in MLLMs with Self-Grounded Verification</title>
+  <link rel="icon" type="image/png" href="static/images/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="static/images/favicon.svg">
+  <link rel="shortcut icon" href="static/images/favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <style>
+      .container {
+        width: 100% !important;
+      }
+      .content a {
+          color: #2164cd !important;
+          text-decoration: none;
+      }
+      .content a:hover {
+          text-decoration: underline;
+      }
+      table th:not(:first-child),
+      table td:not(:first-child) {
+          text-align: center;
+      }
+      table thead tr:first-child th:nth-child(2),
+      table thead tr:first-child th:nth-child(3),
+      table thead tr:first-child th:nth-child(4),
+      table thead tr:first-child th:nth-child(5),
+      table thead tr:first-child th:nth-child(6) {
+          text-align: center;
+      }
+      table thead tr:nth-child(2) th:last-child {
+          text-align: center;
+      }
+      table th[rowspan] {
+          vertical-align: middle;
+      }
+      table th:first-child,
+      table td:first-child {
+          text-align: left;
+      }
+      .scrollable-table {
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          margin-bottom: 1rem;
+      }
+  </style>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Let's Think in Two Steps:<br>Mitigating Agreement Bias in MLLMs with<br>Self-Grounded Verification</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Anonymous Authors</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="#"
+                   target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="#"
+                   target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="#"
+                   target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="static/images/comparison.svg"
+           alt="Comparison between the baseline CoT verifier and our SVG method."
+           style="width: 100%; max-width: 800px; margin: 0 auto 1.5rem; display: block;"
+      >
+      <h2 class="subtitle has-text-centered">
+        Our Self-Grounded Verification (SGV) method uses a two-step process to reduce agreement bias in MLLM verifiers.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Verifiers — functions assigning rewards to agent behavior — have been key for AI progress in domains such as math and board games.
+            However, extending these gains to domains without clear-cut success criteria (e.g., computer use) remains a challenge: while humans can recognize suitable outcomes, translating this intuition into scalable rules is non-trivial.
+            Multimodal Large Language Models (MLLMs) emerge as a promising solution, given their world knowledge, human-preference alignment, and reasoning skills.
+            We evaluate MLLMs as verifiers of agent trajectories across web navigation, computer use, and robotic manipulation, and identify a critical limitation: agreement bias, a strong tendency for MLLMs to favor information in their context window, often generating chains of thought to rationalize flawed behavior.
+            This bias is pervasive across models, resilient to test-time scaling, and can impact several methods using MLLMs as evaluators.
+            Notably, it occurs despite MLLMs showing strong, human-aligned priors on desired behavior.
+            To address this, we propose Self-Grounded Verification (SGV), a lightweight method that enables more effective use of MLLMs' knowledge and reasoning by harnessing their own sampling mechanisms via unconditional and conditional generation.
+            SGV operates in two steps: first, the MLLM is elicited to retrieve broad priors about task completion, independent of the data under evaluation.
+            Then, conditioned on the self-generated priors, it reasons over and evaluates a candidate trajectory.
+            Enhanced with SGV, MLLM verifiers show gains of up to 20 points in accuracy and failure detection rates, and can perform real-time supervision of heterogeneous agents, boosting task completion of a GUI specialist in <a href="https://os-world.github.io" target="_blank">OSWorld</a>, a diffusion policy in <a href="https://robomimic.github.io" target="_blank">robomimic</a>, and a <a href="https://arxiv.org/abs/2210.03629" target="_blank">ReAct</a> agent in <a href="https://jykoh.com/vwa" target="_blank">VisualWebArena</a> — setting a new state of the art on the benchmark, surpassing the previous best by 48%.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <img src="static/images/overview.svg"
+               alt="Summary of findings."
+               style="width: 100%; margin: 0 auto 1.5rem; display: block;"
+          >
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <span><b>Top</b>: example of a task in <a href="https://jykoh.com/vwa" target="_blank">VisualWebArena</a> and a corresponding agent trajectory.</span>
+            <span><b>Middle</b>: an MLLM verifier validates clearly flawed agent behavior, generating reasoning to rationalize its incorrect judgment and reinforcing brittle behavior.</span>
+            <span><b>Bottom</b>: Self-Grounded Verification leads to more accurate verification and enables the agent to backtrack.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Problem Setting</h2>
+        <div class="content has-text-justified">
+          <p>
+            Several breakthroughs in artificial intelligence can be viewed from the lens of search guided by verifiers — functions assigning rewards to agent behavior aligned with desired criteria.
+            However, while domains such as mathematics, programming, and board games benefit from relatively well-defined criteria to evaluate agent behavior, such clarity diminishes in open-ended settings.
+            Evaluation in such scenarios often requires nuanced criteria and reasoning over possibly long sequences of multimodal inputs.
+            Multimodal large language models (MLLMs) emerge as a promising solution to bridge this gap.
+          </p>
+          <p>
+            We consider two digital agent environments — <a href="https://jykoh.com/vwa" target="_blank">VisualWebArena</a> and <a href="https://os-world.github.io" target="_blank">OSWorld</a> — and the long-horizon robot manipulation suite <a href="https://robomimic.github.io" target="_blank">robomimic</a>.
+            Together, they span over 1,200 tasks across varied domains, where evaluating agent behavior demands nuanced criteria and multimodal reasoning.
+          </p>
+          <p>
+            In the offline setting, we evaluate how often MLLM verifiers match oracle verifiers in evaluation of agent trajectories.
+            In the online setting, we assess the ability of MLLM verifiers to evaluate and provide real-time feedback to guide agents towards task completion.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="title is-4 has-text-centered" style="margin: 3rem auto 0;">
+      Task Examples
+    </h3>
+    <div id="results-carousel" class="carousel results-carousel">
+       <div class="item">
+        <img src="static/images/task examples/vwa-classifieds.png"
+             alt="Example of a task in VisualWebArena.">
+        <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+          "Show me the most expensive collectible historical USA coin that is under $2000." (VisualWebArena)
+        </h2>
+      </div>
+      <div class="item">
+        <img src="static/images/task examples/vwa-shopping.png"
+             alt="Example of a task in VisualWebArena.">
+        <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+          "I really like these shoes, but I am not satisfied with the color. Could you find me an item on this page for these shoes with a darker shade or color?" (VisualWebArena)
+        </h2>
+      </div>
+      <div class="item">
+        <img src="static/images/task examples/osworld-slides.png"
+             alt="Example of a task in OSWorld.">
+        <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+          "Please set my slides upright instead of sideways." (OSWorld)
+        </h2>
+      </div>
+      <div class="item">
+        <img src="static/images/task examples/osworld-glasses.png"
+             alt="Example of a task in OSWorld.">
+        <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+          "My glasses are broken, and I'm having trouble seeing small things clearly. Could you help me enlarge the text on my screen so it's easier to read?" (OSWorld)
+        </h2>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Agreement Bias</h2>
+        <div class="content has-text-justified">
+          <p>
+            We identify a critical limitation that undermines the reliability of MLLMs as verifiers: a strong tendency to favor information presented in their context window, a phenomenon we call agreement bias.
+            MLLM verifiers often validate flawed agent behavior and even produce chains-of-thought (CoT) to rationalize their incorrect judgments.
+            This bias is pervasive across model families, and persists despite the use of established test-time scaling techniques, training for reasoning, and instructions with task-specific evaluation criteria.
+          </p>
+          <p>
+            We observe that agreement bias occurs despite models having relatively strong, and human-aligned priors on desired characteristics for agent behavior.
+            This suggests a bottleneck in retrieval; while models possess the relevant knowledge for a downstream task, the way it is stored can hinder retrieval depending on the form the information is presented.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Self-Grounded Verification</h2>
+        <div class="content has-text-justified">
+          <p>
+            To address agreement bias, we introduce Self-Grounded Verification (SGV).
+            SGV operates in two steps: first, the model is elicited to retrieve a broad set of priors associated with successful task completion, conditioned only on minimal context to frame the task without access to the data under evaluation.
+            In the second step, conditioned on its self-generated priors, the model then evaluates a candidate trajectory.
+            SGV leads to more balanced and accurate verification across environments and policies, while introducing minimal token overhead and being easy to integrate into pipelines relying on MLLM verifiers.
+          </p>
+          <p>
+            Intuitively, by modulating unconditional and conditional generation, SGV harnesses MLLMs' own sampling mechanisms to enable more effective use of their world knowledge, alignment, and reasoning capabilities.
+            By conditioning only on essential information in the first step, the model is induced to fully explore its high-dimensional probability distribution to retrieve information relevant to the task at hand and independent of the data under evaluation.
+            In the second step, the model performs more focused generation, reasoning about the trajectory while grounded in its own trajectory-independent beliefs about what success looks like — effectively sampling from a conditional distribution induced by its own priors.
+            We hypothesize that MLLMs, given their vast world knowledge and generalization abilities, can generate priors that are well-aligned with human notions of success, and that by decoupling inference in this manner, these priors can serve as an impartial baseline for grounding the verification.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            To demonstrate SGV's effectiveness and versatility, we evaluate its performance in two key applications of MLLM verifiers: automatic evaluation of agent trajectories, and online supervision to guide agents toward task completion.
+          </p>
+
+          <!-- Table 1 -->
+          <div style="margin: 2rem 0;">
+            <div style="font-weight: bold; margin-bottom: 0.5rem;">
+              Performance of MLLM verifiers on evaluation of web agent trajectories. (a) Agreement bias: models struggle to identify flawed behavior. (b) SGV improves performance across models.
+            </div>
+            <div class="scrollable-table">
+              <table class="table is-striped is-hoverable">
+                <thead>
+                  <tr>
+                    <th rowspan="2" style="text-align: left;">Model</th>
+                    <th colspan="3">(a) CoT-Based Verification</th>
+                    <th colspan="3">(b) Self-Grounded Verification</th>
+                    <th rowspan="2">∆ Acc.</th>
+                  </tr>
+                  <tr>
+                    <th>TPR (%)</th>
+                    <th>TNR (%)</th>
+                    <th>Acc. (%)</th>
+                    <th>TPR (%)</th>
+                    <th>TNR (%)</th>
+                    <th>Acc. (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align: left;">GPT-4.1</td>
+                    <td>90</td>
+                    <td>50</td>
+                    <td>65</td>
+                    <td>80</td>
+                    <td>65</td>
+                    <td>72</td>
+                    <td style="color: #16a34a; font-weight: bold;">+7</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">GPT-4o</td>
+                    <td>85</td>
+                    <td>54</td>
+                    <td>62</td>
+                    <td>74</td>
+                    <td>73</td>
+                    <td>73</td>
+                    <td style="color: #16a34a; font-weight: bold;">+11</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Gemini 2.5</td>
+                    <td>89</td>
+                    <td>54</td>
+                    <td>69</td>
+                    <td>75</td>
+                    <td>77</td>
+                    <td>76</td>
+                    <td style="color: #16a34a; font-weight: bold;">+8</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Qwen2.5-VL-72B</td>
+                    <td>82</td>
+                    <td>54</td>
+                    <td>62</td>
+                    <td>74</td>
+                    <td>68</td>
+                    <td>70</td>
+                    <td style="color: #16a34a; font-weight: bold;">+8</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Llama 4 Maverick</td>
+                    <td>82</td>
+                    <td>54</td>
+                    <td>62</td>
+                    <td>74</td>
+                    <td>64</td>
+                    <td>67</td>
+                    <td style="color: #16a34a; font-weight: bold;">+6</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">OpenAI o1 (high)*</td>
+                    <td>77</td>
+                    <td>66</td>
+                    <td>68</td>
+                    <td>74</td>
+                    <td>74</td>
+                    <td>74</td>
+                    <td style="color: #16a34a; font-weight: bold;">+6</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Gemini 2.5 (T-H)†</td>
+                    <td>84</td>
+                    <td>65</td>
+                    <td>73</td>
+                    <td>73</td>
+                    <td>83</td>
+                    <td>79</td>
+                    <td style="color: #16a34a; font-weight: bold;">+6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="content is-small">
+              <p>* VisualWebArena shopping domain only. † Thinking enabled with max thinking budget (24,576 tokens).</p>
+            </div>
+          </div>
+
+          <p>
+            On over 1,200 agent trajectories from VisualWebArena and OSWorld, SGV improves verification performance of several MLLMs and large reasoning models (LRMs), leading to gains of up to 17 percentage points (pp) in accuracy and up to 20 pp in true-negative identification, outperforming baselines leveraging established test-time scaling techniques and instructions with access to privileged information.
+          </p>
+
+          <!-- Table 3 -->
+          <div style="margin: 2rem 0;">
+            <div style="font-weight: bold; margin-bottom: 0.5rem;">
+              Task success rate (SR) and token usage across VisualWebArena domains and OSWorld. Token usage (for VisualWebArena) is relative to the ReAct agent with no verifier.
+            </div>
+            <div class="scrollable-table">
+              <table class="table is-striped is-hoverable">
+                <thead>
+                  <tr>
+                    <th rowspan="2" style="text-align: left;">Method</th>
+                    <th colspan="2">All VWA</th>
+                    <th colspan="2">Classifieds</th>
+                    <th colspan="2">Reddit</th>
+                    <th colspan="2">Shopping</th>
+                    <th>OSWorld</th>
+                  </tr>
+                  <tr>
+                    <th>SR</th>
+                    <th>Tokens</th>
+                    <th>SR</th>
+                    <th>Tokens</th>
+                    <th>SR</th>
+                    <th>Tokens</th>
+                    <th>SR</th>
+                    <th>Tokens</th>
+                    <th>SR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align: left;"><a href="https://arxiv.org/abs/2407.01476" target="_blank">Search Agent</a>*</td>
+                    <td>29</td>
+                    <td>4.9x</td>
+                    <td>34</td>
+                    <td>4.2x</td>
+                    <td>22</td>
+                    <td>5.4x</td>
+                    <td>30</td>
+                    <td>5.1x</td>
+                    <td>–</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;"><a href="https://arxiv.org/abs/2410.02052" target="_blank">R-MCTS</a>*</td>
+                    <td>34</td>
+                    <td>9.3x</td>
+                    <td>41</td>
+                    <td>7.4x</td>
+                    <td>29</td>
+                    <td>9.7x</td>
+                    <td>32</td>
+                    <td>10.1x</td>
+                    <td>–</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Base Agent</td>
+                    <td>46</td>
+                    <td>1x</td>
+                    <td>49</td>
+                    <td>1x</td>
+                    <td>29</td>
+                    <td>1x</td>
+                    <td>52</td>
+                    <td>1x</td>
+                    <td>21.4</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">+ Verifier, no SGV</td>
+                    <td>46</td>
+                    <td>1.5x</td>
+                    <td>48</td>
+                    <td>1.5x</td>
+                    <td>29</td>
+                    <td>1x</td>
+                    <td>53</td>
+                    <td>1x</td>
+                    <td>–</td>
+                  </tr>
+                  <tr style="background-color: #f0f9ff;">
+                    <td style="text-align: left;"><strong>+ Verifier, SGV</strong></td>
+                    <td><strong>50</strong></td>
+                    <td><strong>1.9x</strong></td>
+                    <td><strong>52</strong></td>
+                    <td><strong>1.9x</strong></td>
+                    <td><strong>33</strong></td>
+                    <td><strong>1.7x</strong></td>
+                    <td><strong>57</strong></td>
+                    <td><strong>1.9x</strong></td>
+                    <td><strong>24.5</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="content is-small">
+              <p>*Results from prior work.</p>
+            </div>
+          </div>
+
+          <p>
+            Paired with SGV, our ReAct agent achieves a 5 pp gain (≈ 10% relative) on VisualWebArena, establishing <strong>a new state of the art</strong> by outperforming the previous best by 16 pp (≈ 48% relative), with minimal increase in token usage.
+            Similarly, our verifiers guide the GUI-specialist <a href="https://seed-tars.com/1.5" target="_blank">UI-TARS-1.5</a> to improve by 3 pp (≈ 15% relative) in OSWorld, and a diffusion policy to outperform oracle supervision by 8 pp (≈ 33% relative) on robomimic's tool-hang task.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Example Trajectories</h2>
+        <p class="has-text-justified">
+          1. Example of the agent receiving valid feedback from the verifier and modifying its approach to correctly complete the task:
+        </p>
+        <h3 class="subtitle is-5 has-text-centered" style="margin: 1.5rem auto 0;">
+          "Find me the cheapest controller from the classifieds site that is meant for the console in the image on the Reddit tab."
+          <br>
+          (VisualWebArena)
+        </h3>
+        <div class="carousel results-carousel">
+           <div class="item">
+            <img src="static/images/trajectory examples/feedback success/0.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">tab_focus [1]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback success/1.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">type [5] [Nintendo 64 controller]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback success/12.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">click [32]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback success/13.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+               Agent:<br><span style="font-family: monospace;">stop</span>
+            </h2>
+          </div>
+          <div class="item">
+            <h2 class="subtitle" style="margin-top: 1rem;">
+              Verifier feedback:
+            </h2>
+            <h2 class="subtitle has-text-left" style="margin-top: 1rem; font-family: monospace;">
+              <strong>EVALUATION</strong>: PARTIAL SUCCESS
+              <br>
+              <strong>FEEDBACK</strong>: You correctly identified the console and searched for the controller.
+              However, you <strong>did not sort the search results by price</strong> to find the cheapest controller.
+              Please go back to the search results page, sort the results by price (lowest first), and then click on the listing for the cheapest Nintendo 64 controller.
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback success/13.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+               Agent:<br><span style="font-family: monospace;">go_back</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback success/15.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">click [18]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback success/20.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">stop</span>
+            </h2>
+          </div>
+          <div class="item">
+            <h2 class="subtitle" style="margin-top: 1rem;">
+              Verifier feedback:
+            </h2>
+            <h2 class="subtitle has-text-left" style="margin-top: 1rem; font-family: monospace;">
+              <strong>EVALUATION</strong>: SUCCESS
+              <br>
+              <strong>FEEDBACK</strong>: The assistant <strong>successfully completed the task</strong> by identifying the console, searching for the controller, sorting by price, and navigating to the page of the cheapest item.
+            </h2>
+          </div>
+        </div>
+
+        <p class="has-text-justified" style="margin-top: 4rem;">
+          2. Example of the verifier guiding the agent toward a more robust strategy to complete the task:
+        </p>
+        <h3 class="subtitle is-5 has-text-centered" style="margin: 1.5rem auto 0;">
+          "How many hours are on the engine of the most recently listed red boat?"
+          <br>
+          (VisualWebArena)
+        </h3>
+        <div class="carousel results-carousel">
+           <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/0.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">click [38]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/1.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">scroll [down]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/2-1.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">stop [80]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <h2 class="subtitle" style="margin-top: 1rem;">
+              Verifier feedback:
+            </h2>
+            <h2 class="subtitle has-text-left" style="margin-top: 1rem; font-family: monospace;">
+              <strong>EVALUATION</strong>: FAILURE
+              <br>
+              <strong>FEEDBACK</strong>: The assistant <strong>did not attempt to search for "red boat"</strong> as required by the objective.
+              ...
+              The assistant should go back to the home page and use the search bar to search for "red boat".
+              After searching, the assistant should look for the most recently listed red boat and click on the listing to find the engine hours.
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/2-2.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">go_back</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/4.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">type [5] [red boat] [1]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/5-1.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">stop [80]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <h2 class="subtitle" style="margin-top: 1rem;">
+              Verifier feedback:
+            </h2>
+            <h2 class="subtitle has-text-left" style="margin-top: 1rem; font-family: monospace;">
+              <strong>EVALUATION</strong>: PARTIAL SUCCESS
+              <br>
+              <strong>FEEDBACK</strong>: The assistant successfully searched for "red boat".
+              However, it <strong>stopped before clicking on any of the listings</strong> to find the engine hours.
+              The assistant needs to click on the most recently listed red boat and then find the engine hours on that page.
+              The most recently listed red boat is the one at the top of the list.
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/5-2.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">click [38]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <img src="static/images/trajectory examples/feedback robust/6.png" alt="">
+            <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+              Agent:<br><span style="font-family: monospace;">stop [80]</span>
+            </h2>
+          </div>
+          <div class="item">
+            <h2 class="subtitle" style="margin-top: 1rem;">
+              Verifier feedback:
+            </h2>
+            <h2 class="subtitle has-text-left" style="margin-top: 1rem; font-family: monospace;">
+              <strong>EVALUATION</strong>: SUCCESS
+              <br>
+              <strong>FEEDBACK</strong>: The assistant <strong>successfully navigated to the listing</strong> for the red boat and found the engine hours.
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This page was built using the
+            <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>,
+            which is based on the
+            <a href="https://nerfies.github.io" target="_blank">Nerfies</a>
+            project page.
+            <br> This website is licensed under a
+            <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
